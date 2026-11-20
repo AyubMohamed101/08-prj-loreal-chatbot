@@ -46,7 +46,7 @@ export default {
     }
 
     const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
+      "https://api.openai.com/v1/responses",
       {
         method: "POST",
         headers: {
@@ -55,15 +55,63 @@ export default {
         },
         body: JSON.stringify({
           model: "gpt-4.1",
-          messages: userInput.messages,
-          max_completion_tokens: 300,
+          input: userInput.messages,
+          tools: [
+            {
+              type: "web_search",
+              search_context_size: "medium",
+            },
+          ],
+          max_output_tokens: 800,
         }),
       },
     );
 
     const data = await response.json();
+    const replyText =
+      data.output_text ||
+      data.output
+        ?.filter((item) => item.type === "message")
+        .flatMap((item) => item.content || [])
+        .filter((content) => content.type === "output_text")
+        .map((content) => content.text)
+        .join("\n") ||
+      "";
 
-    return new Response(JSON.stringify(data), {
+    const citations = [];
+    data.output?.forEach((item) => {
+      item.content?.forEach((content) => {
+        content.annotations?.forEach((annotation) => {
+          if (annotation.type === "url_citation" && annotation.url) {
+            const duplicate = citations.some(
+              (citation) => citation.url === annotation.url,
+            );
+            if (!duplicate) {
+              citations.push({
+                title: annotation.title || annotation.url,
+                url: annotation.url,
+              });
+            }
+          }
+        });
+      });
+    });
+
+    // Keep a chat-completions-shaped reply for the existing frontend.
+    const normalized = {
+      ...data,
+      citations,
+      choices: [
+        {
+          message: {
+            role: "assistant",
+            content: replyText,
+          },
+        },
+      ],
+    };
+
+    return new Response(JSON.stringify(normalized), {
       status: response.status,
       headers: corsHeaders,
     });

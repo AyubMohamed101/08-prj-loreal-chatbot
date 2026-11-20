@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,10 +25,52 @@
           alt="L'Oréal logo"
         />
         <h1 class="site-title">Smart Product Advisor</h1>
+        <button type="button" id="rtlToggle" class="rtl-toggle" aria-pressed="false">
+          Arabic / RTL
+        </button>
       </header>
 
       <!------- Chat Area ------->
       <main>
+        <section class="product-section" aria-labelledby="productHeading">
+          <div class="section-heading">
+            <h2 id="productHeading">Choose Your Products</h2>
+            <p>Click a card to select or unselect it.</p>
+          </div>
+          <div class="product-controls">
+            <label for="productSearch">
+              Search products
+              <input
+                id="productSearch"
+                type="search"
+                placeholder="Search by name or keyword"
+                autocomplete="off"
+              />
+            </label>
+            <label for="categoryFilter">
+              Category
+              <select id="categoryFilter">
+                <option value="All">All categories</option>
+                <option value="Skincare">Skincare</option>
+                <option value="Haircare">Haircare</option>
+                <option value="Makeup">Makeup</option>
+                <option value="Fragrance">Fragrance</option>
+              </select>
+            </label>
+          </div>
+          <div id="productGrid" class="product-grid"></div>
+        </section>
+
+        <section class="selected-section" aria-labelledby="selectedHeading">
+          <h2 id="selectedHeading">Selected Products</h2>
+          <ul id="selectedProductsList" class="selected-products-list">
+            <li class="empty-selection">No products selected yet.</li>
+          </ul>
+          <button type="button" id="generateRoutineBtn" class="routine-button" disabled>
+            Generate Routine
+          </button>
+        </section>
+
         <section class="chatbox">
           <div id="chatWindow" class="chat-window">
             <!-- messages will be appended here via JS -->
